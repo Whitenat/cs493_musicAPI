@@ -1,0 +1,19 @@
+{
+  "name": "music-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "sls": "serverless"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "serverless": "^2.25.2",
+    "serverless-offline": "^6.8.0"
+  },
+  "dependencies": {
+    "serverless-express": "^2.0.11"
+  }
+}
