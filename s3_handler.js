@@ -57,27 +57,7 @@ module.exports.hello = (event, context, callback) => {
       };
        callback(null, response);
     })
-  // var params = {
-  //   "Bucket": 'hw-bucket-name',
-  //   "Key": "Awful - josh pan.mp3", 
 
-  // };
-  // var promise = s3.getSignedUrlPromise('getObject', params);
-  // promise.then(function(url) {
-  //   console.log('The URL is', url);
-  //   let response = {
-  //     "statusCode": 200,
-  //     "headers": {
-  //         "my_header": "my_value",
-  //         "Access-Control-Allow-Origin": "*",
-  //         "Access-Control-Allow-Credentials": true,
-  //     },
-  //     //"body": JSON.stringify(data.Contents,["Key"]),
-  //     "body": JSON.stringify(url),
-  //     "isBase64Encoded": false
-  //   };
-  //    callback(null, response);
-  // }, function(err) { callback(err, null); });
   // s3.getSignedUrl('getObjec', params, function (err, url) {
   //   console.log('The URL is', url);
   //   if(err) {

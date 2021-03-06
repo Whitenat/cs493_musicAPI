@@ -4,16 +4,24 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "sls": "serverless"
+    "sls": "serverless",
+    "db": "docker run -p 8000:8000 dwmkerr/dynamodb -sharedDb",
+    "up": "ACTION=CREATE node ddb_local.js",
+    "down": "ACTION=DELETE node ddb_local.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "serverless": "^2.25.2",
+    "serverless-dynamodb-local": "^0.2.39",
     "serverless-offline": "^6.8.0"
   },
   "dependencies": {
-    "serverless-express": "^2.0.11"
+    "aws-sdk": "^2.857.0",
+    "body-parser": "^1.19.0",
+    "express": "^4.17.1",
+    "serverless-express": "^2.0.11",
+    "serverless-http": "^2.7.0"
   }
 }
