@@ -71,6 +71,18 @@
         }
       }
     },
+    "AuthLogGroup": {
+      "Type": "AWS::Logs::LogGroup",
+      "Properties": {
+        "LogGroupName": "/aws/lambda/music-api-dev-auth"
+      }
+    },
+    "HelloLogGroup": {
+      "Type": "AWS::Logs::LogGroup",
+      "Properties": {
+        "LogGroupName": "/aws/lambda/music-api-dev-hello"
+      }
+    },
     "AppLogGroup": {
       "Type": "AWS::Logs::LogGroup",
       "Properties": {
@@ -105,6 +117,18 @@
       "Type": "AWS::Logs::LogGroup",
       "Properties": {
         "LogGroupName": "/aws/lambda/music-api-dev-getSong"
+      }
+    },
+    "SqsUnderscorefunctionLogGroup": {
+      "Type": "AWS::Logs::LogGroup",
+      "Properties": {
+        "LogGroupName": "/aws/lambda/music-api-dev-sqs_function"
+      }
+    },
+    "PlayLogGroup": {
+      "Type": "AWS::Logs::LogGroup",
+      "Properties": {
+        "LogGroupName": "/aws/lambda/music-api-dev-play"
       }
     },
     "S3LogGroup": {
@@ -191,6 +215,38 @@
                       ]
                     }
                   ]
+                },
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "sqs:ReceiveMessage",
+                    "sqs:DeleteMessage",
+                    "sqs:GetQueueAttributes"
+                  ],
+                  "Resource": [
+                    {
+                      "Fn::GetAtt": [
+                        "MyQueue",
+                        "Arn"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "sqs:ReceiveMessage",
+                    "sqs:DeleteMessage",
+                    "sqs:GetQueueAttributes"
+                  ],
+                  "Resource": [
+                    {
+                      "Fn::GetAtt": [
+                        "MyQueue",
+                        "Arn"
+                      ]
+                    }
+                  ]
                 }
               ]
             }
@@ -211,9 +267,72 @@
           ]
         },
         "ManagedPolicyArns": [
-          "arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess"
+          "arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess",
+          "arn:aws:iam::aws:policy/AmazonSQSFullAccess"
         ]
       }
+    },
+    "AuthLambdaFunction": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Ref": "ServerlessDeploymentBucket"
+          },
+          "S3Key": "serverless/music-api/dev/1616081764081-2021-03-18T15:36:04.081Z/music-api.zip"
+        },
+        "Handler": "auth.handler",
+        "Runtime": "nodejs12.x",
+        "FunctionName": "music-api-dev-auth",
+        "MemorySize": 1024,
+        "Timeout": 6,
+        "Environment": {
+          "Variables": {
+            "MUSIC_TABLE": "music-table-dev",
+            "SERVERLESS_EXPRESS_PLATFORM": "aws"
+          }
+        },
+        "Role": {
+          "Fn::GetAtt": [
+            "IamRoleLambdaExecution",
+            "Arn"
+          ]
+        }
+      },
+      "DependsOn": [
+        "AuthLogGroup"
+      ]
+    },
+    "HelloLambdaFunction": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Ref": "ServerlessDeploymentBucket"
+          },
+          "S3Key": "serverless/music-api/dev/1616081764081-2021-03-18T15:36:04.081Z/music-api.zip"
+        },
+        "Handler": "handler.hello",
+        "Runtime": "nodejs12.x",
+        "FunctionName": "music-api-dev-hello",
+        "MemorySize": 1024,
+        "Timeout": 6,
+        "Environment": {
+          "Variables": {
+            "MUSIC_TABLE": "music-table-dev",
+            "SERVERLESS_EXPRESS_PLATFORM": "aws"
+          }
+        },
+        "Role": {
+          "Fn::GetAtt": [
+            "IamRoleLambdaExecution",
+            "Arn"
+          ]
+        }
+      },
+      "DependsOn": [
+        "HelloLogGroup"
+      ]
     },
     "AppLambdaFunction": {
       "Type": "AWS::Lambda::Function",
@@ -222,7 +341,7 @@
           "S3Bucket": {
             "Ref": "ServerlessDeploymentBucket"
           },
-          "S3Key": "serverless/music-api/dev/1614993499554-2021-03-06T01:18:19.554Z/music-api.zip"
+          "S3Key": "serverless/music-api/dev/1616081764081-2021-03-18T15:36:04.081Z/music-api.zip"
         },
         "Handler": "index.handler",
         "Runtime": "nodejs12.x",
@@ -253,7 +372,7 @@
           "S3Bucket": {
             "Ref": "ServerlessDeploymentBucket"
           },
-          "S3Key": "serverless/music-api/dev/1614993499554-2021-03-06T01:18:19.554Z/music-api.zip"
+          "S3Key": "serverless/music-api/dev/1616081764081-2021-03-18T15:36:04.081Z/music-api.zip"
         },
         "Handler": "index.handler",
         "Runtime": "nodejs12.x",
@@ -284,7 +403,7 @@
           "S3Bucket": {
             "Ref": "ServerlessDeploymentBucket"
           },
-          "S3Key": "serverless/music-api/dev/1614993499554-2021-03-06T01:18:19.554Z/music-api.zip"
+          "S3Key": "serverless/music-api/dev/1616081764081-2021-03-18T15:36:04.081Z/music-api.zip"
         },
         "Handler": "index.handler",
         "Runtime": "nodejs12.x",
@@ -315,7 +434,7 @@
           "S3Bucket": {
             "Ref": "ServerlessDeploymentBucket"
           },
-          "S3Key": "serverless/music-api/dev/1614993499554-2021-03-06T01:18:19.554Z/music-api.zip"
+          "S3Key": "serverless/music-api/dev/1616081764081-2021-03-18T15:36:04.081Z/music-api.zip"
         },
         "Handler": "index.handler",
         "Runtime": "nodejs12.x",
@@ -346,7 +465,7 @@
           "S3Bucket": {
             "Ref": "ServerlessDeploymentBucket"
           },
-          "S3Key": "serverless/music-api/dev/1614993499554-2021-03-06T01:18:19.554Z/music-api.zip"
+          "S3Key": "serverless/music-api/dev/1616081764081-2021-03-18T15:36:04.081Z/music-api.zip"
         },
         "Handler": "index.handler",
         "Runtime": "nodejs12.x",
@@ -377,7 +496,7 @@
           "S3Bucket": {
             "Ref": "ServerlessDeploymentBucket"
           },
-          "S3Key": "serverless/music-api/dev/1614993499554-2021-03-06T01:18:19.554Z/music-api.zip"
+          "S3Key": "serverless/music-api/dev/1616081764081-2021-03-18T15:36:04.081Z/music-api.zip"
         },
         "Handler": "index.handler",
         "Runtime": "nodejs12.x",
@@ -401,6 +520,69 @@
         "GetSongLogGroup"
       ]
     },
+    "SqsUnderscorefunctionLambdaFunction": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Ref": "ServerlessDeploymentBucket"
+          },
+          "S3Key": "serverless/music-api/dev/1616081764081-2021-03-18T15:36:04.081Z/music-api.zip"
+        },
+        "Handler": "sqs_handler.handler",
+        "Runtime": "nodejs12.x",
+        "FunctionName": "music-api-dev-sqs_function",
+        "MemorySize": 1024,
+        "Timeout": 6,
+        "Environment": {
+          "Variables": {
+            "MUSIC_TABLE": "music-table-dev",
+            "SERVERLESS_EXPRESS_PLATFORM": "aws"
+          }
+        },
+        "Role": {
+          "Fn::GetAtt": [
+            "IamRoleLambdaExecution",
+            "Arn"
+          ]
+        },
+        "ReservedConcurrentExecutions": 10
+      },
+      "DependsOn": [
+        "SqsUnderscorefunctionLogGroup"
+      ]
+    },
+    "PlayLambdaFunction": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Ref": "ServerlessDeploymentBucket"
+          },
+          "S3Key": "serverless/music-api/dev/1616081764081-2021-03-18T15:36:04.081Z/music-api.zip"
+        },
+        "Handler": "index.handler",
+        "Runtime": "nodejs12.x",
+        "FunctionName": "music-api-dev-play",
+        "MemorySize": 1024,
+        "Timeout": 6,
+        "Environment": {
+          "Variables": {
+            "MUSIC_TABLE": "music-table-dev",
+            "SERVERLESS_EXPRESS_PLATFORM": "aws"
+          }
+        },
+        "Role": {
+          "Fn::GetAtt": [
+            "IamRoleLambdaExecution",
+            "Arn"
+          ]
+        }
+      },
+      "DependsOn": [
+        "PlayLogGroup"
+      ]
+    },
     "S3LambdaFunction": {
       "Type": "AWS::Lambda::Function",
       "Properties": {
@@ -408,7 +590,7 @@
           "S3Bucket": {
             "Ref": "ServerlessDeploymentBucket"
           },
-          "S3Key": "serverless/music-api/dev/1614993499554-2021-03-06T01:18:19.554Z/music-api.zip"
+          "S3Key": "serverless/music-api/dev/1616081764081-2021-03-18T15:36:04.081Z/music-api.zip"
         },
         "Handler": "s3_handler.hello",
         "Runtime": "nodejs12.x",
@@ -432,74 +614,114 @@
         "S3LogGroup"
       ]
     },
-    "AppLambdaVersionGCufKOYT9Qk4c4YF5ReFco8AyFZol2TeBrJ3LM8qpyo": {
+    "AuthLambdaVersioniWOw9rwU2lRyGuGEzTEts6VAYvgCVGkBiD09GSCo": {
+      "Type": "AWS::Lambda::Version",
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "FunctionName": {
+          "Ref": "AuthLambdaFunction"
+        },
+        "CodeSha256": "iN86j1DkX9815rhCiYG+XBwROPWzUglgj27OYdMBKDA="
+      }
+    },
+    "HelloLambdaVersionEsCy3RaRcelLcSB1iNNjULm3lmTYJAVRTE7veckS6w": {
+      "Type": "AWS::Lambda::Version",
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "FunctionName": {
+          "Ref": "HelloLambdaFunction"
+        },
+        "CodeSha256": "iN86j1DkX9815rhCiYG+XBwROPWzUglgj27OYdMBKDA="
+      }
+    },
+    "AppLambdaVersionSvS5z1WrF5SuHq7W2E9SxB0lujnbBsJmRwRTeexyas": {
       "Type": "AWS::Lambda::Version",
       "DeletionPolicy": "Retain",
       "Properties": {
         "FunctionName": {
           "Ref": "AppLambdaFunction"
         },
-        "CodeSha256": "aTnzs4PTBUUH54L7+jSJHuS8s0EKSo7mfJO6xCGQBrk="
+        "CodeSha256": "iN86j1DkX9815rhCiYG+XBwROPWzUglgj27OYdMBKDA="
       }
     },
-    "GetGenreLambdaVersion326HkRaWhl4ceda5b4Zt8F9C8tkHQ6OS0WQySbrrsbQ": {
+    "GetGenreLambdaVersionPv1qKrwMEj4Ip3Tp9NaIFdzLlCh0iKm4IpzcrghEg": {
       "Type": "AWS::Lambda::Version",
       "DeletionPolicy": "Retain",
       "Properties": {
         "FunctionName": {
           "Ref": "GetGenreLambdaFunction"
         },
-        "CodeSha256": "aTnzs4PTBUUH54L7+jSJHuS8s0EKSo7mfJO6xCGQBrk="
+        "CodeSha256": "iN86j1DkX9815rhCiYG+XBwROPWzUglgj27OYdMBKDA="
       }
     },
-    "GetArtistByGenreLambdaVersionq0xy80e81wypTVxOCyjcfq0nwCwE4T80I4Fe5olEEr0": {
+    "GetArtistByGenreLambdaVersionikfQRhDCelR4bvJoqN7e3oXM850U3Vr9Z47JOfmvY": {
       "Type": "AWS::Lambda::Version",
       "DeletionPolicy": "Retain",
       "Properties": {
         "FunctionName": {
           "Ref": "GetArtistByGenreLambdaFunction"
         },
-        "CodeSha256": "aTnzs4PTBUUH54L7+jSJHuS8s0EKSo7mfJO6xCGQBrk="
+        "CodeSha256": "iN86j1DkX9815rhCiYG+XBwROPWzUglgj27OYdMBKDA="
       }
     },
-    "GetAlbumByArtistLambdaVersionrW7t4S33oSkTqOSr631KV4NXkj4Ou5O03J2S3mpZPFY": {
+    "GetAlbumByArtistLambdaVersionyp1EHw2UCOZeg7LjW1hF0L71SuF2LJ4oxMWw2lTdw": {
       "Type": "AWS::Lambda::Version",
       "DeletionPolicy": "Retain",
       "Properties": {
         "FunctionName": {
           "Ref": "GetAlbumByArtistLambdaFunction"
         },
-        "CodeSha256": "aTnzs4PTBUUH54L7+jSJHuS8s0EKSo7mfJO6xCGQBrk="
+        "CodeSha256": "iN86j1DkX9815rhCiYG+XBwROPWzUglgj27OYdMBKDA="
       }
     },
-    "GetSongByAlbumLambdaVersionqHq5ccXl8M21VQo2XDLAa2ofjLgKArfUHYUXSnFUA": {
+    "GetSongByAlbumLambdaVersionB61Y4UQ5ipxUHrFhpokoeJufH44LyLtuMXvdgy1gE4": {
       "Type": "AWS::Lambda::Version",
       "DeletionPolicy": "Retain",
       "Properties": {
         "FunctionName": {
           "Ref": "GetSongByAlbumLambdaFunction"
         },
-        "CodeSha256": "aTnzs4PTBUUH54L7+jSJHuS8s0EKSo7mfJO6xCGQBrk="
+        "CodeSha256": "iN86j1DkX9815rhCiYG+XBwROPWzUglgj27OYdMBKDA="
       }
     },
-    "GetSongLambdaVersionChUPBx9kZ6OfcmpXAkykz54MA6PcGPia30pmDW1vE": {
+    "GetSongLambdaVersionlsEWiVyRzTb4ApCEFfRGzsDQY9KhJTlXlcn6lrjBrww": {
       "Type": "AWS::Lambda::Version",
       "DeletionPolicy": "Retain",
       "Properties": {
         "FunctionName": {
           "Ref": "GetSongLambdaFunction"
         },
-        "CodeSha256": "aTnzs4PTBUUH54L7+jSJHuS8s0EKSo7mfJO6xCGQBrk="
+        "CodeSha256": "iN86j1DkX9815rhCiYG+XBwROPWzUglgj27OYdMBKDA="
       }
     },
-    "S3LambdaVersiongdQLHllc2Tx0X7BnyW8KFBKG03Ui6NNuj7eTeEky8": {
+    "SqsUnderscorefunctionLambdaVersionYEd5FoXX8JJnCvPpCaerJDnnwLaLhliigpzx6jlodk": {
+      "Type": "AWS::Lambda::Version",
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "FunctionName": {
+          "Ref": "SqsUnderscorefunctionLambdaFunction"
+        },
+        "CodeSha256": "iN86j1DkX9815rhCiYG+XBwROPWzUglgj27OYdMBKDA="
+      }
+    },
+    "PlayLambdaVersionkRmwdupy2OBrMgVOgfTGia2XFBDjqi9ybGF6vw": {
+      "Type": "AWS::Lambda::Version",
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "FunctionName": {
+          "Ref": "PlayLambdaFunction"
+        },
+        "CodeSha256": "iN86j1DkX9815rhCiYG+XBwROPWzUglgj27OYdMBKDA="
+      }
+    },
+    "S3LambdaVersionoL8WQfzQ1ID4r41zIKJhGqJmLHmQDaKXCSZEiPVlrA": {
       "Type": "AWS::Lambda::Version",
       "DeletionPolicy": "Retain",
       "Properties": {
         "FunctionName": {
           "Ref": "S3LambdaFunction"
         },
-        "CodeSha256": "aTnzs4PTBUUH54L7+jSJHuS8s0EKSo7mfJO6xCGQBrk="
+        "CodeSha256": "iN86j1DkX9815rhCiYG+XBwROPWzUglgj27OYdMBKDA="
       }
     },
     "ApiGatewayRestApi": {
@@ -724,6 +946,338 @@
         }
       }
     },
+    "ApiGatewayResourcePlay": {
+      "Type": "AWS::ApiGateway::Resource",
+      "Properties": {
+        "ParentId": {
+          "Fn::GetAtt": [
+            "ApiGatewayRestApi",
+            "RootResourceId"
+          ]
+        },
+        "PathPart": "play",
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        }
+      }
+    },
+    "ApiGatewayMethodProxyVarOptions": {
+      "Type": "AWS::ApiGateway::Method",
+      "Properties": {
+        "AuthorizationType": "NONE",
+        "HttpMethod": "OPTIONS",
+        "MethodResponses": [
+          {
+            "StatusCode": "200",
+            "ResponseParameters": {
+              "method.response.header.Access-Control-Allow-Origin": true,
+              "method.response.header.Access-Control-Allow-Headers": true,
+              "method.response.header.Access-Control-Allow-Methods": true
+            },
+            "ResponseModels": {}
+          }
+        ],
+        "RequestParameters": {},
+        "Integration": {
+          "Type": "MOCK",
+          "RequestTemplates": {
+            "application/json": "{statusCode:200}"
+          },
+          "ContentHandling": "CONVERT_TO_TEXT",
+          "IntegrationResponses": [
+            {
+              "StatusCode": "200",
+              "ResponseParameters": {
+                "method.response.header.Access-Control-Allow-Origin": "'*'",
+                "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'",
+                "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,DELETE,GET,HEAD,PATCH,POST,PUT'"
+              },
+              "ResponseTemplates": {
+                "application/json": "#set($origin = $input.params(\"Origin\"))\n#if($origin == \"\") #set($origin = $input.params(\"origin\")) #end\n#if($origin.matches(\".+\")) #set($context.responseOverride.header.Access-Control-Allow-Origin = $origin) #end"
+              }
+            }
+          ]
+        },
+        "ResourceId": {
+          "Ref": "ApiGatewayResourceProxyVar"
+        },
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        }
+      }
+    },
+    "ApiGatewayMethodGenresOptions": {
+      "Type": "AWS::ApiGateway::Method",
+      "Properties": {
+        "AuthorizationType": "NONE",
+        "HttpMethod": "OPTIONS",
+        "MethodResponses": [
+          {
+            "StatusCode": "200",
+            "ResponseParameters": {
+              "method.response.header.Access-Control-Allow-Origin": true,
+              "method.response.header.Access-Control-Allow-Headers": true,
+              "method.response.header.Access-Control-Allow-Methods": true
+            },
+            "ResponseModels": {}
+          }
+        ],
+        "RequestParameters": {},
+        "Integration": {
+          "Type": "MOCK",
+          "RequestTemplates": {
+            "application/json": "{statusCode:200}"
+          },
+          "ContentHandling": "CONVERT_TO_TEXT",
+          "IntegrationResponses": [
+            {
+              "StatusCode": "200",
+              "ResponseParameters": {
+                "method.response.header.Access-Control-Allow-Origin": "'*'",
+                "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'",
+                "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,GET'"
+              },
+              "ResponseTemplates": {
+                "application/json": "#set($origin = $input.params(\"Origin\"))\n#if($origin == \"\") #set($origin = $input.params(\"origin\")) #end\n#if($origin.matches(\".+\")) #set($context.responseOverride.header.Access-Control-Allow-Origin = $origin) #end"
+              }
+            }
+          ]
+        },
+        "ResourceId": {
+          "Ref": "ApiGatewayResourceGenres"
+        },
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        }
+      }
+    },
+    "ApiGatewayMethodArtistByGenreProxyVarOptions": {
+      "Type": "AWS::ApiGateway::Method",
+      "Properties": {
+        "AuthorizationType": "NONE",
+        "HttpMethod": "OPTIONS",
+        "MethodResponses": [
+          {
+            "StatusCode": "200",
+            "ResponseParameters": {
+              "method.response.header.Access-Control-Allow-Origin": true,
+              "method.response.header.Access-Control-Allow-Headers": true,
+              "method.response.header.Access-Control-Allow-Methods": true
+            },
+            "ResponseModels": {}
+          }
+        ],
+        "RequestParameters": {},
+        "Integration": {
+          "Type": "MOCK",
+          "RequestTemplates": {
+            "application/json": "{statusCode:200}"
+          },
+          "ContentHandling": "CONVERT_TO_TEXT",
+          "IntegrationResponses": [
+            {
+              "StatusCode": "200",
+              "ResponseParameters": {
+                "method.response.header.Access-Control-Allow-Origin": "'*'",
+                "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'",
+                "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,GET'"
+              },
+              "ResponseTemplates": {
+                "application/json": "#set($origin = $input.params(\"Origin\"))\n#if($origin == \"\") #set($origin = $input.params(\"origin\")) #end\n#if($origin.matches(\".+\")) #set($context.responseOverride.header.Access-Control-Allow-Origin = $origin) #end"
+              }
+            }
+          ]
+        },
+        "ResourceId": {
+          "Ref": "ApiGatewayResourceArtistByGenreProxyVar"
+        },
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        }
+      }
+    },
+    "ApiGatewayMethodAlbumsByArtistProxyVarOptions": {
+      "Type": "AWS::ApiGateway::Method",
+      "Properties": {
+        "AuthorizationType": "NONE",
+        "HttpMethod": "OPTIONS",
+        "MethodResponses": [
+          {
+            "StatusCode": "200",
+            "ResponseParameters": {
+              "method.response.header.Access-Control-Allow-Origin": true,
+              "method.response.header.Access-Control-Allow-Headers": true,
+              "method.response.header.Access-Control-Allow-Methods": true
+            },
+            "ResponseModels": {}
+          }
+        ],
+        "RequestParameters": {},
+        "Integration": {
+          "Type": "MOCK",
+          "RequestTemplates": {
+            "application/json": "{statusCode:200}"
+          },
+          "ContentHandling": "CONVERT_TO_TEXT",
+          "IntegrationResponses": [
+            {
+              "StatusCode": "200",
+              "ResponseParameters": {
+                "method.response.header.Access-Control-Allow-Origin": "'*'",
+                "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'",
+                "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,GET'"
+              },
+              "ResponseTemplates": {
+                "application/json": "#set($origin = $input.params(\"Origin\"))\n#if($origin == \"\") #set($origin = $input.params(\"origin\")) #end\n#if($origin.matches(\".+\")) #set($context.responseOverride.header.Access-Control-Allow-Origin = $origin) #end"
+              }
+            }
+          ]
+        },
+        "ResourceId": {
+          "Ref": "ApiGatewayResourceAlbumsByArtistProxyVar"
+        },
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        }
+      }
+    },
+    "ApiGatewayMethodSongsByAlbumProxyVarOptions": {
+      "Type": "AWS::ApiGateway::Method",
+      "Properties": {
+        "AuthorizationType": "NONE",
+        "HttpMethod": "OPTIONS",
+        "MethodResponses": [
+          {
+            "StatusCode": "200",
+            "ResponseParameters": {
+              "method.response.header.Access-Control-Allow-Origin": true,
+              "method.response.header.Access-Control-Allow-Headers": true,
+              "method.response.header.Access-Control-Allow-Methods": true
+            },
+            "ResponseModels": {}
+          }
+        ],
+        "RequestParameters": {},
+        "Integration": {
+          "Type": "MOCK",
+          "RequestTemplates": {
+            "application/json": "{statusCode:200}"
+          },
+          "ContentHandling": "CONVERT_TO_TEXT",
+          "IntegrationResponses": [
+            {
+              "StatusCode": "200",
+              "ResponseParameters": {
+                "method.response.header.Access-Control-Allow-Origin": "'*'",
+                "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'",
+                "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,GET'"
+              },
+              "ResponseTemplates": {
+                "application/json": "#set($origin = $input.params(\"Origin\"))\n#if($origin == \"\") #set($origin = $input.params(\"origin\")) #end\n#if($origin.matches(\".+\")) #set($context.responseOverride.header.Access-Control-Allow-Origin = $origin) #end"
+              }
+            }
+          ]
+        },
+        "ResourceId": {
+          "Ref": "ApiGatewayResourceSongsByAlbumProxyVar"
+        },
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        }
+      }
+    },
+    "ApiGatewayMethodSongProxyVarOptions": {
+      "Type": "AWS::ApiGateway::Method",
+      "Properties": {
+        "AuthorizationType": "NONE",
+        "HttpMethod": "OPTIONS",
+        "MethodResponses": [
+          {
+            "StatusCode": "200",
+            "ResponseParameters": {
+              "method.response.header.Access-Control-Allow-Origin": true,
+              "method.response.header.Access-Control-Allow-Headers": true,
+              "method.response.header.Access-Control-Allow-Methods": true
+            },
+            "ResponseModels": {}
+          }
+        ],
+        "RequestParameters": {},
+        "Integration": {
+          "Type": "MOCK",
+          "RequestTemplates": {
+            "application/json": "{statusCode:200}"
+          },
+          "ContentHandling": "CONVERT_TO_TEXT",
+          "IntegrationResponses": [
+            {
+              "StatusCode": "200",
+              "ResponseParameters": {
+                "method.response.header.Access-Control-Allow-Origin": "'*'",
+                "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'",
+                "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,GET'"
+              },
+              "ResponseTemplates": {
+                "application/json": "#set($origin = $input.params(\"Origin\"))\n#if($origin == \"\") #set($origin = $input.params(\"origin\")) #end\n#if($origin.matches(\".+\")) #set($context.responseOverride.header.Access-Control-Allow-Origin = $origin) #end"
+              }
+            }
+          ]
+        },
+        "ResourceId": {
+          "Ref": "ApiGatewayResourceSongProxyVar"
+        },
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        }
+      }
+    },
+    "ApiGatewayMethodPlayOptions": {
+      "Type": "AWS::ApiGateway::Method",
+      "Properties": {
+        "AuthorizationType": "NONE",
+        "HttpMethod": "OPTIONS",
+        "MethodResponses": [
+          {
+            "StatusCode": "200",
+            "ResponseParameters": {
+              "method.response.header.Access-Control-Allow-Origin": true,
+              "method.response.header.Access-Control-Allow-Headers": true,
+              "method.response.header.Access-Control-Allow-Methods": true,
+              "method.response.header.Access-Control-Allow-Credentials": true
+            },
+            "ResponseModels": {}
+          }
+        ],
+        "RequestParameters": {},
+        "Integration": {
+          "Type": "MOCK",
+          "RequestTemplates": {
+            "application/json": "{statusCode:200}"
+          },
+          "ContentHandling": "CONVERT_TO_TEXT",
+          "IntegrationResponses": [
+            {
+              "StatusCode": "200",
+              "ResponseParameters": {
+                "method.response.header.Access-Control-Allow-Origin": "'*'",
+                "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent,Access-Control-Allow-Origin,Access-Control-Request-Headers,Access-Control-Request-Method'",
+                "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,POST'",
+                "method.response.header.Access-Control-Allow-Credentials": "'true'"
+              },
+              "ResponseTemplates": {
+                "application/json": ""
+              }
+            }
+          ]
+        },
+        "ResourceId": {
+          "Ref": "ApiGatewayResourcePlay"
+        },
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        }
+      }
+    },
     "ApiGatewayMethodAny": {
       "Type": "AWS::ApiGateway::Method",
       "Properties": {
@@ -782,7 +1336,10 @@
           "Ref": "ApiGatewayRestApi"
         },
         "ApiKeyRequired": false,
-        "AuthorizationType": "NONE",
+        "AuthorizationType": "CUSTOM",
+        "AuthorizerId": {
+          "Ref": "AuthApiGatewayAuthorizer"
+        },
         "Integration": {
           "IntegrationHttpMethod": "POST",
           "Type": "AWS_PROXY",
@@ -811,7 +1368,8 @@
           }
         },
         "MethodResponses": []
-      }
+      },
+      "DependsOn": "AuthApiGatewayAuthorizer"
     },
     "ApiGatewayMethodGenresGet": {
       "Type": "AWS::ApiGateway::Method",
@@ -825,7 +1383,10 @@
           "Ref": "ApiGatewayRestApi"
         },
         "ApiKeyRequired": false,
-        "AuthorizationType": "NONE",
+        "AuthorizationType": "CUSTOM",
+        "AuthorizerId": {
+          "Ref": "AuthApiGatewayAuthorizer"
+        },
         "Integration": {
           "IntegrationHttpMethod": "POST",
           "Type": "AWS_PROXY",
@@ -854,7 +1415,8 @@
           }
         },
         "MethodResponses": []
-      }
+      },
+      "DependsOn": "AuthApiGatewayAuthorizer"
     },
     "ApiGatewayMethodArtistByGenreProxyVarGet": {
       "Type": "AWS::ApiGateway::Method",
@@ -868,7 +1430,10 @@
           "Ref": "ApiGatewayRestApi"
         },
         "ApiKeyRequired": false,
-        "AuthorizationType": "NONE",
+        "AuthorizationType": "CUSTOM",
+        "AuthorizerId": {
+          "Ref": "AuthApiGatewayAuthorizer"
+        },
         "Integration": {
           "IntegrationHttpMethod": "POST",
           "Type": "AWS_PROXY",
@@ -897,7 +1462,8 @@
           }
         },
         "MethodResponses": []
-      }
+      },
+      "DependsOn": "AuthApiGatewayAuthorizer"
     },
     "ApiGatewayMethodAlbumsByArtistProxyVarGet": {
       "Type": "AWS::ApiGateway::Method",
@@ -911,7 +1477,10 @@
           "Ref": "ApiGatewayRestApi"
         },
         "ApiKeyRequired": false,
-        "AuthorizationType": "NONE",
+        "AuthorizationType": "CUSTOM",
+        "AuthorizerId": {
+          "Ref": "AuthApiGatewayAuthorizer"
+        },
         "Integration": {
           "IntegrationHttpMethod": "POST",
           "Type": "AWS_PROXY",
@@ -940,7 +1509,8 @@
           }
         },
         "MethodResponses": []
-      }
+      },
+      "DependsOn": "AuthApiGatewayAuthorizer"
     },
     "ApiGatewayMethodSongsByAlbumProxyVarGet": {
       "Type": "AWS::ApiGateway::Method",
@@ -954,7 +1524,10 @@
           "Ref": "ApiGatewayRestApi"
         },
         "ApiKeyRequired": false,
-        "AuthorizationType": "NONE",
+        "AuthorizationType": "CUSTOM",
+        "AuthorizerId": {
+          "Ref": "AuthApiGatewayAuthorizer"
+        },
         "Integration": {
           "IntegrationHttpMethod": "POST",
           "Type": "AWS_PROXY",
@@ -983,7 +1556,8 @@
           }
         },
         "MethodResponses": []
-      }
+      },
+      "DependsOn": "AuthApiGatewayAuthorizer"
     },
     "ApiGatewayMethodSongProxyVarGet": {
       "Type": "AWS::ApiGateway::Method",
@@ -997,7 +1571,10 @@
           "Ref": "ApiGatewayRestApi"
         },
         "ApiKeyRequired": false,
-        "AuthorizationType": "NONE",
+        "AuthorizationType": "CUSTOM",
+        "AuthorizerId": {
+          "Ref": "AuthApiGatewayAuthorizer"
+        },
         "Integration": {
           "IntegrationHttpMethod": "POST",
           "Type": "AWS_PROXY",
@@ -1026,9 +1603,92 @@
           }
         },
         "MethodResponses": []
+      },
+      "DependsOn": "AuthApiGatewayAuthorizer"
+    },
+    "ApiGatewayMethodPlayPost": {
+      "Type": "AWS::ApiGateway::Method",
+      "Properties": {
+        "HttpMethod": "POST",
+        "RequestParameters": {},
+        "ResourceId": {
+          "Ref": "ApiGatewayResourcePlay"
+        },
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        },
+        "ApiKeyRequired": false,
+        "AuthorizationType": "CUSTOM",
+        "AuthorizerId": {
+          "Ref": "AuthApiGatewayAuthorizer"
+        },
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition"
+                },
+                ":apigateway:",
+                {
+                  "Ref": "AWS::Region"
+                },
+                ":lambda:path/2015-03-31/functions/",
+                {
+                  "Fn::GetAtt": [
+                    "PlayLambdaFunction",
+                    "Arn"
+                  ]
+                },
+                "/invocations"
+              ]
+            ]
+          }
+        },
+        "MethodResponses": []
+      },
+      "DependsOn": "AuthApiGatewayAuthorizer"
+    },
+    "AuthApiGatewayAuthorizer": {
+      "Type": "AWS::ApiGateway::Authorizer",
+      "Properties": {
+        "AuthorizerResultTtlInSeconds": 300,
+        "IdentitySource": "method.request.header.authorization",
+        "Name": "auth",
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        },
+        "AuthorizerUri": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition"
+              },
+              ":apigateway:",
+              {
+                "Ref": "AWS::Region"
+              },
+              ":lambda:path/2015-03-31/functions/",
+              {
+                "Fn::GetAtt": [
+                  "AuthLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "/invocations"
+            ]
+          ]
+        },
+        "Type": "REQUEST"
       }
     },
-    "ApiGatewayDeployment1614993484718": {
+    "ApiGatewayDeployment1616081750530": {
       "Type": "AWS::ApiGateway::Deployment",
       "Properties": {
         "RestApiId": {
@@ -1037,13 +1697,21 @@
         "StageName": "dev"
       },
       "DependsOn": [
+        "ApiGatewayMethodProxyVarOptions",
+        "ApiGatewayMethodGenresOptions",
+        "ApiGatewayMethodArtistByGenreProxyVarOptions",
+        "ApiGatewayMethodAlbumsByArtistProxyVarOptions",
+        "ApiGatewayMethodSongsByAlbumProxyVarOptions",
+        "ApiGatewayMethodSongProxyVarOptions",
+        "ApiGatewayMethodPlayOptions",
         "ApiGatewayMethodAny",
         "ApiGatewayMethodProxyVarAny",
         "ApiGatewayMethodGenresGet",
         "ApiGatewayMethodArtistByGenreProxyVarGet",
         "ApiGatewayMethodAlbumsByArtistProxyVarGet",
         "ApiGatewayMethodSongsByAlbumProxyVarGet",
-        "ApiGatewayMethodSongProxyVarGet"
+        "ApiGatewayMethodSongProxyVarGet",
+        "ApiGatewayMethodPlayPost"
       ]
     },
     "AppLambdaPermissionApiGateway": {
@@ -1052,6 +1720,43 @@
         "FunctionName": {
           "Fn::GetAtt": [
             "AppLambdaFunction",
+            "Arn"
+          ]
+        },
+        "Action": "lambda:InvokeFunction",
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition"
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region"
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId"
+              },
+              ":",
+              {
+                "Ref": "ApiGatewayRestApi"
+              },
+              "/*/*"
+            ]
+          ]
+        }
+      }
+    },
+    "AuthLambdaPermissionApiGateway": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "AuthLambdaFunction",
             "Arn"
           ]
         },
@@ -1268,6 +1973,87 @@
         }
       }
     },
+    "PlayLambdaPermissionApiGateway": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "PlayLambdaFunction",
+            "Arn"
+          ]
+        },
+        "Action": "lambda:InvokeFunction",
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition"
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region"
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId"
+              },
+              ":",
+              {
+                "Ref": "ApiGatewayRestApi"
+              },
+              "/*/*"
+            ]
+          ]
+        }
+      }
+    },
+    "HelloEventSourceMappingSQSMyQueue": {
+      "Type": "AWS::Lambda::EventSourceMapping",
+      "DependsOn": [
+        "IamRoleLambdaExecution"
+      ],
+      "Properties": {
+        "BatchSize": 10,
+        "EventSourceArn": {
+          "Fn::GetAtt": [
+            "MyQueue",
+            "Arn"
+          ]
+        },
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "HelloLambdaFunction",
+            "Arn"
+          ]
+        },
+        "Enabled": true
+      }
+    },
+    "SqsUnderscorefunctionEventSourceMappingSQSMyQueue": {
+      "Type": "AWS::Lambda::EventSourceMapping",
+      "DependsOn": [
+        "IamRoleLambdaExecution"
+      ],
+      "Properties": {
+        "BatchSize": 10,
+        "EventSourceArn": {
+          "Fn::GetAtt": [
+            "MyQueue",
+            "Arn"
+          ]
+        },
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "SqsUnderscorefunctionLambdaFunction",
+            "Arn"
+          ]
+        },
+        "Enabled": true
+      }
+    },
     "HttpApi": {
       "Type": "AWS::ApiGatewayV2::Api",
       "Properties": {
@@ -1392,6 +2178,12 @@
         },
         "TableName": "music-table-dev"
       }
+    },
+    "MyQueue": {
+      "Type": "AWS::SQS::Queue",
+      "Properties": {
+        "QueueName": "MyQueue"
+      }
     }
   },
   "Outputs": {
@@ -1400,46 +2192,70 @@
         "Ref": "ServerlessDeploymentBucket"
       }
     },
+    "AuthLambdaFunctionQualifiedArn": {
+      "Description": "Current Lambda function version",
+      "Value": {
+        "Ref": "AuthLambdaVersioniWOw9rwU2lRyGuGEzTEts6VAYvgCVGkBiD09GSCo"
+      }
+    },
+    "HelloLambdaFunctionQualifiedArn": {
+      "Description": "Current Lambda function version",
+      "Value": {
+        "Ref": "HelloLambdaVersionEsCy3RaRcelLcSB1iNNjULm3lmTYJAVRTE7veckS6w"
+      }
+    },
     "AppLambdaFunctionQualifiedArn": {
       "Description": "Current Lambda function version",
       "Value": {
-        "Ref": "AppLambdaVersionGCufKOYT9Qk4c4YF5ReFco8AyFZol2TeBrJ3LM8qpyo"
+        "Ref": "AppLambdaVersionSvS5z1WrF5SuHq7W2E9SxB0lujnbBsJmRwRTeexyas"
       }
     },
     "GetGenreLambdaFunctionQualifiedArn": {
       "Description": "Current Lambda function version",
       "Value": {
-        "Ref": "GetGenreLambdaVersion326HkRaWhl4ceda5b4Zt8F9C8tkHQ6OS0WQySbrrsbQ"
+        "Ref": "GetGenreLambdaVersionPv1qKrwMEj4Ip3Tp9NaIFdzLlCh0iKm4IpzcrghEg"
       }
     },
     "GetArtistByGenreLambdaFunctionQualifiedArn": {
       "Description": "Current Lambda function version",
       "Value": {
-        "Ref": "GetArtistByGenreLambdaVersionq0xy80e81wypTVxOCyjcfq0nwCwE4T80I4Fe5olEEr0"
+        "Ref": "GetArtistByGenreLambdaVersionikfQRhDCelR4bvJoqN7e3oXM850U3Vr9Z47JOfmvY"
       }
     },
     "GetAlbumByArtistLambdaFunctionQualifiedArn": {
       "Description": "Current Lambda function version",
       "Value": {
-        "Ref": "GetAlbumByArtistLambdaVersionrW7t4S33oSkTqOSr631KV4NXkj4Ou5O03J2S3mpZPFY"
+        "Ref": "GetAlbumByArtistLambdaVersionyp1EHw2UCOZeg7LjW1hF0L71SuF2LJ4oxMWw2lTdw"
       }
     },
     "GetSongByAlbumLambdaFunctionQualifiedArn": {
       "Description": "Current Lambda function version",
       "Value": {
-        "Ref": "GetSongByAlbumLambdaVersionqHq5ccXl8M21VQo2XDLAa2ofjLgKArfUHYUXSnFUA"
+        "Ref": "GetSongByAlbumLambdaVersionB61Y4UQ5ipxUHrFhpokoeJufH44LyLtuMXvdgy1gE4"
       }
     },
     "GetSongLambdaFunctionQualifiedArn": {
       "Description": "Current Lambda function version",
       "Value": {
-        "Ref": "GetSongLambdaVersionChUPBx9kZ6OfcmpXAkykz54MA6PcGPia30pmDW1vE"
+        "Ref": "GetSongLambdaVersionlsEWiVyRzTb4ApCEFfRGzsDQY9KhJTlXlcn6lrjBrww"
+      }
+    },
+    "SqsUnderscorefunctionLambdaFunctionQualifiedArn": {
+      "Description": "Current Lambda function version",
+      "Value": {
+        "Ref": "SqsUnderscorefunctionLambdaVersionYEd5FoXX8JJnCvPpCaerJDnnwLaLhliigpzx6jlodk"
+      }
+    },
+    "PlayLambdaFunctionQualifiedArn": {
+      "Description": "Current Lambda function version",
+      "Value": {
+        "Ref": "PlayLambdaVersionkRmwdupy2OBrMgVOgfTGia2XFBDjqi9ybGF6vw"
       }
     },
     "S3LambdaFunctionQualifiedArn": {
       "Description": "Current Lambda function version",
       "Value": {
-        "Ref": "S3LambdaVersiongdQLHllc2Tx0X7BnyW8KFBKG03Ui6NNuj7eTeEky8"
+        "Ref": "S3LambdaVersionoL8WQfzQ1ID4r41zIKJhGqJmLHmQDaKXCSZEiPVlrA"
       }
     },
     "ServiceEndpoint": {

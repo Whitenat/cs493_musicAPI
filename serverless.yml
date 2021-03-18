@@ -10,6 +10,7 @@ provider:
   lambdaHashingVersion: 20201221
   iamManagedPolicies: 
     - arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
+    - arn:aws:iam::aws:policy/AmazonSQSFullAccess
   iamRoleStatements:
     - Effect: Allow
       Action:
@@ -34,36 +35,143 @@ plugins:
   - serverless-express
 
 functions:
+  auth:
+    handler: auth.handler
+
+  hello:
+    handler: handler.hello
+    events:
+      - sqs:
+          arn:
+            Fn::GetAtt:
+              - MyQueue
+              - Arn
   app:
     handler: index.handler
     events:
       - http: ANY /
-      - http: 'ANY /{proxy+}'
+      - http:
+          method: ANY
+          path: /{proxy+}
+          cors: true
+          authorizer:
+            name: auth
+            type: request
+            identitySource: method.request.header.authorization
 
+  # getGenre:
+  #   handler: index.handler
+  #   events:
+  #     - http: 'GET /genres'
   getGenre:
     handler: index.handler
     events:
-      - http: 'GET /genres'
+      - http:
+          method: GET
+          path: /genres
+          cors: true
+          authorizer:
+            name: auth
+            type: request
+            identitySource: method.request.header.authorization
 
+  # getArtistByGenre:
+  #   handler: index.handler
+  #   events:
+  #     - http: 'GET /artist/by/genre/{proxy+}'
   getArtistByGenre:
     handler: index.handler
     events:
-      - http: 'GET /artist/by/genre/{proxy+}'
+      - http:
+          method: GET
+          path: /artist/by/genre/{proxy+}
+          cors: true
+          authorizer:
+            name: auth
+            type: request
+            identitySource: method.request.header.authorization
 
+  # getAlbumByArtist:
+  #   handler: index.handler
+  #   events:
+  #     - http: 'GET /albums/by/artist/{proxy+}'
   getAlbumByArtist:
     handler: index.handler
     events:
-      - http: 'GET /albums/by/artist/{proxy+}'
+      - http:
+          method: GET
+          path: /albums/by/artist/{proxy+}
+          cors: true
+          authorizer:
+            name: auth
+            type: request
+            identitySource: method.request.header.authorization
 
+  # getSongByAlbum:
+  #   handler: index.handler
+  #   events:
+  #     - http: 'GET /songs/by/album/{proxy+}'
   getSongByAlbum:
     handler: index.handler
     events:
-      - http: 'GET /songs/by/album/{proxy+}'
+      - http:
+          method: GET
+          path: /songs/by/album/{proxy+}
+          cors: true
+          authorizer:
+            name: auth
+            type: request
+            identitySource: method.request.header.authorization
 
+  # getSong:
+  #   handler: index.handler
+  #   events:
+  #     - http: 'GET /song/{proxy+}'
   getSong:
     handler: index.handler
     events:
-      - http: 'GET /song/{proxy+}'
+      - http:
+          method: GET
+          path: /song/{proxy+}
+          cors: true
+          authorizer:
+            name: auth
+            type: request
+            identitySource: method.request.header.authorization
+
+  sqs_function:
+    handler: sqs_handler.handler
+    reservedConcurrency: 10 #Concurrency control
+    events:
+      - sqs:
+          arn:
+            Fn::GetAtt:
+              - MyQueue
+              - Arn
+  play:
+    handler: index.handler
+    events:
+      - http:
+          path: /play
+          method: post
+          cors:
+            origin:
+              - '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+              - Access-Control-Allow-Origin
+              - Access-Control-Request-Headers
+              - Access-Control-Request-Method
+            allowCredentials: true
+          authorizer:
+            name: auth
+            type: request
+            identitySource: method.request.header.authorization          
 
   s3:
     handler: s3_handler.hello
@@ -110,6 +218,10 @@ resources:
 
         TableName: ${self:custom.tableName} 
           
+    MyQueue:
+      Type: "AWS::SQS::Queue"
+      Properties:
+        QueueName: "MyQueue"
 
 
   # hello:
